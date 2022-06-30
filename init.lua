@@ -6,6 +6,10 @@ local priv_name = "therianthrophy"
 
 local chicken_players = {}
 
+minetest.register_on_leaveplayer(function(player)
+    chicken_players[player:get_player_name()] = nil
+end)
+
 player_api.register_model("mobs_chicken.b3d", {
     animation_speed = 24,
     textures = {"mobs_chicken.png"},
