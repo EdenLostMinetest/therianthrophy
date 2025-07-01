@@ -4,10 +4,10 @@
 
 local priv_name = "therianthrophy"
 
-local chicken_players = {}
+local transformed_players = {}
 
 minetest.register_on_leaveplayer(function(player)
-    chicken_players[player:get_player_name()] = nil
+    transformed_players[player:get_player_name()] = nil
 end)
 
 player_api.register_model("mobs_chicken.b3d", {
@@ -25,12 +25,27 @@ player_api.register_model("mobs_chicken.b3d", {
     }
 })
 
+player_api.register_model("mobs_bunny.b3d", {
+    animation_speed = 15,
+    textures = {"mobs_bunny_grey.png"},
+    collisionbox = {-0.268, -0.5, -0.268, 0.268, 0.167, 0.268},
+    eye_height = 0,
+    animations = {
+        stand = {x = 1, y = 15},
+        lay = {x = 1, y = 15},
+        walk = {x = 16, y = 24},
+        mine = {x = 16, y = 24},
+        walk_mine = {x = 16, y = 24},
+        sit = {x = 1, y = 15}
+    }
+})
+
 -- Override the skin update function to skip chicken players,
 -- so that the custom properties do not get changed
 local old_skin_apply = skins.skin_class.apply_skin_to_player
 skins.skin_class.apply_skin_to_player = function(self, player)
     local name = player:get_player_name()
-    if chicken_players[name] then
+    if transformed_players[name] then
         return
     end
     return old_skin_apply(self, player)
@@ -55,16 +70,16 @@ end
 
 local function to_human(player)
     local name = player:get_player_name()
-    chicken_players[name] = nil
+    transformed_players[name] = nil
     set_model(player, "skinsdb_3d_armor_character_5.b3d")
     skins.update_player_skin(player)
 end
 
-local function to_chicken(player)
+local function transform(player, model_name, texture)
     local name = player:get_player_name()
-    chicken_players[name] = true
-    set_model(player, "mobs_chicken.b3d")
-    player_api.set_textures(player, {"mobs_chicken.png"})
+    transformed_players[name] = true
+    set_model(player, model_name)
+    player_api.set_textures(player, {texture})
     -- Pop the player up a node so they dont fall into the node below
     player:set_pos(vector.add(player:get_pos(), vector.new(0, 1, 0)))
 end
@@ -107,6 +122,24 @@ minetest.register_chatcommand("chicken", {
         if not player then
             return false, "Player does not exist."
         end
-        to_chicken(player)
+        transform(player, "mobs_chicken.b3d", "mobs_chicken.png")
+    end
+})
+
+minetest.register_chatcommand("bunny", {
+    params = "[<player>]",
+    description = "Turns player into a bunny",
+    func = function(name, target)
+        if target ~= "" then
+            if not minetest.check_player_privs(name, {[priv_name] = true}) then
+                return false, "You don't have permission to transform other players."
+            end
+            name = target
+        end
+        local player = minetest.get_player_by_name(name)
+        if not player then
+            return false, "Player does not exist."
+        end
+        transform(player, "mobs_bunny.b3d", "mobs_bunny_grey.png")
     end
 })
