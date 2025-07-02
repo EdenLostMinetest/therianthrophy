@@ -5,14 +5,20 @@
 local priv_name = "therianthrophy"
 
 local transformed_players = {}
+-- Model, texture
+local player_model_data = {
+    chicken = {"mobs_chicken.b3d", "mobs_chicken.png"},
+    bunny = {"mobs_bunny.b3d", "mobs_bunny_grey.png"}
+}
 
 minetest.register_on_leaveplayer(function(player)
     transformed_players[player:get_player_name()] = nil
 end)
 
-player_api.register_model("mobs_chicken.b3d", {
+local chicken_data = player_model_data.chicken
+player_api.register_model(chicken_data[1], {
     animation_speed = 24,
-    textures = {"mobs_chicken.png"},
+    textures = {chicken_data[2]},
     collisionbox = {-0.3, -0.75, -0.3, 0.3, 0.1, 0.3},
     eye_height = 0,
     animations = {
@@ -25,9 +31,10 @@ player_api.register_model("mobs_chicken.b3d", {
     }
 })
 
-player_api.register_model("mobs_bunny.b3d", {
+local bunny_data = player_model_data.bunny
+player_api.register_model(bunny_data[1], {
     animation_speed = 15,
-    textures = {"mobs_bunny_grey.png"},
+    textures = {bunny_data[2]},
     collisionbox = {-0.268, -0.5, -0.268, 0.268, 0.167, 0.268},
     eye_height = 0,
     animations = {
@@ -75,13 +82,16 @@ local function to_human(player)
     skins.update_player_skin(player)
 end
 
-local function transform(player, model_name, texture)
+local function transform(player, model_data)
     local name = player:get_player_name()
     transformed_players[name] = true
-    set_model(player, model_name)
+    local model, texture = unpack(model_data)
+    set_model(player, model)
     player_api.set_textures(player, {texture})
     -- Pop the player up a node so they dont fall into the node below
     player:set_pos(vector.add(player:get_pos(), vector.new(0, 1, 0)))
+
+    return true, ""
 end
 
 minetest.register_privilege(priv_name, {
@@ -108,38 +118,22 @@ minetest.register_chatcommand("human", {
     end
 })
 
-minetest.register_chatcommand("chicken", {
-    params = "[<player>]",
-    description = "Turns player into a chicken",
-    func = function(name, target)
-        if target ~= "" then
-            if not minetest.check_player_privs(name, {[priv_name] = true}) then
-                return false, "You don't have permission to transform other players."
+for short_name, model_data in pairs(player_model_data) do
+    core.register_chatcommand(short_name, {
+        params = "[<player>]",
+        description = "Turns player into a " .. short_name,
+        func = function(name, target)
+            if target ~= "" then
+                if not core.check_player_privs(name, {[priv_name] = true}) then
+                    return false, "You don't have permission to transform other players."
+                end
+                name = target
             end
-            name = target
-        end
-        local player = minetest.get_player_by_name(name)
-        if not player then
-            return false, "Player does not exist."
-        end
-        transform(player, "mobs_chicken.b3d", "mobs_chicken.png")
-    end
-})
-
-minetest.register_chatcommand("bunny", {
-    params = "[<player>]",
-    description = "Turns player into a bunny",
-    func = function(name, target)
-        if target ~= "" then
-            if not minetest.check_player_privs(name, {[priv_name] = true}) then
-                return false, "You don't have permission to transform other players."
+            local player = core.get_player_by_name(name)
+            if not player then
+                return false, "Player is not logged in."
             end
-            name = target
+            transform(player, model_data)
         end
-        local player = minetest.get_player_by_name(name)
-        if not player then
-            return false, "Player does not exist."
-        end
-        transform(player, "mobs_bunny.b3d", "mobs_bunny_grey.png")
-    end
-})
+    })
+end
