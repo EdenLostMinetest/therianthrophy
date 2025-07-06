@@ -96,7 +96,6 @@ end
 for _, name in ipairs(mobs_redo_to_register) do
     local short_name = name:split(":")[2]
     if not problematic_animals[short_name] then
-        core.log("error", "registering " .. name)
         local def = core.registered_entities[name]
         therianthropy.register_from_mobs_redo(short_name, def)
     end
