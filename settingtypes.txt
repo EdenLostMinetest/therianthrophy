@@ -1,0 +1,1 @@
+therianthropy.sounds (Play animal noises when transformed) bool true
