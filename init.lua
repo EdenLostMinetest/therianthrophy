@@ -1,4 +1,3 @@
-
 -- therianthrophy mod
 -- Inspired by OgelGames's "Be a Chicken" LUA command block on pandorabox.io
 
