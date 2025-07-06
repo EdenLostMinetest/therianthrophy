@@ -1,1 +1,2 @@
 therianthropy.sounds (Play animal noises when transformed) bool true
+therianthropy.mobs_animal (Add animals from mobs_animal mod) bool true
