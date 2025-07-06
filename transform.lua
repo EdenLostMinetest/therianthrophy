@@ -48,7 +48,6 @@ local function register_animal_player_model(short_name, def)
             walk_mine = walk_mine_anim
         }
     })
-    core.chat_send_all(short_name .. ", " .. core.serialize(visual_size))
     therianthropy.mob_data[short_name] = {
         model = model,
         texture = texture,
