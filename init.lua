@@ -18,6 +18,8 @@ local function register_animal_player_model(short_name, def)
     local box = init_prop.collisionbox
     -- Todo: find a better eye_height calculation
     local eye_height = (box[5] - box[2]) / init_prop.visual_size.y + box[2]
+    local hear_distance = (def.sounds and def.sounds.distance) or 10
+    local sounds = def.sounds or {}
 
     local anim = def.animation
     local anim_speed, stand_anim, walk_anim, mine_anim, walk_mine_anim
@@ -55,7 +57,28 @@ local function register_animal_player_model(short_name, def)
             walk_mine = walk_mine_anim
         }
     })
-    mob_data[short_name] = {model, texture}
+    mob_data[short_name] = {
+        model = model,
+        texture = texture,
+        hear_distance = hear_distance,
+        sounds = sounds
+    }
+end
+
+local function play_sound(player, sound_name)
+    if not sound_name or sound_name == "" then return end
+
+    local player_name = player:get_player_name()
+    if not transformed_players[player_name] then return end
+
+    local data = mob_data[transformed_players[player_name]]
+    local sound = data.sounds[sound_name]
+    if not sound or sound == "" then return end
+
+    local pitch = 1 + math.random(-10, 10) * 0.005
+    core.sound_play({name = sound, gain = 1, pitch = pitch}, {
+        object = player, max_hear_distance = data.hear_distance
+    }, true)
 end
 
 -- Override the skin update function to skip chicken players,
@@ -93,9 +116,9 @@ local function to_human(player)
     skins.update_player_skin(player)
 end
 
-local function transform(player, model, texture)
+local function transform(player, short_name, model, texture)
     local name = player:get_player_name()
-    transformed_players[name] = true
+    transformed_players[name] = short_name
     set_model(player, model)
     player_api.set_textures(player, {texture})
     -- Pop the player up a node so they dont fall into the node below
@@ -131,7 +154,7 @@ core.register_chatcommand("transform", {
             return false, "Animal does not exist."
         end
 
-        transform(player, data[1], data[2])
+        transform(player, animal, data.model, data.texture)
     end
 })
 
@@ -146,6 +169,28 @@ core.register_chatcommand("list_animals", {
         return true, "Human, " .. table.concat(animals, ", ")
     end
 })
+
+-- Play animal attack noise when punching a player
+core.register_on_punchplayer(function(player, hitter, time_from_last_punch, _, _, _)
+    if not transformed_players[hitter:get_player_name()] then return end
+
+    time_from_last_punch = time_from_last_punch or 0
+    if time_from_last_punch >= 0.6 then
+        play_sound(hitter, "attack")
+    end
+end)
+
+-- Play random mob noises
+local function play_random()
+    for _, player in ipairs(core.get_connected_players()) do
+        if math.random(100) == 1 then
+            play_sound(player, "random")
+        end
+    end
+
+    core.after(1, play_random)
+end
+core.after(1, play_random)
 
 core.register_on_joinplayer(function()
     for name, _ in pairs(mobs.spawning_mobs) do
