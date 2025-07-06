@@ -42,6 +42,8 @@ therianthropy.register_animal(short_name, {
 - `sounds`: no sounds
 - `animations`: no animations
 
+You may also use `therianthropy.register_from_mobs_redo(short_name, def)` to add any mob that uses `mobs_redo` via its entity definition.
+
 To determine if a player is transformed:
 
 ```
