@@ -122,6 +122,10 @@ core.register_chatcommand("list_animals", {
     end
 })
 
+core.register_on_dieplayer(function(player)
+    therianthropy.transform(player, "human")
+end)
+
 core.register_on_leaveplayer(function(player)
     therianthropy.transformed_players[player:get_player_name()] = nil
 end)
