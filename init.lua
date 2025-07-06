@@ -7,8 +7,12 @@ therianthropy = {
     mob_data = {}
 }
 
+-- Animals added in this order
+-- If a new animal has the same name as one that is already registered,
+-- the new animal is skipped
 local animal_mods = {
-    "mobs_animal"
+    "mobs_animal",
+    "dmobs"
 }
 
 local modpath = core.get_modpath("therianthrophy") .. "/"
@@ -17,7 +21,7 @@ local settings = core.settings
 dofile(modpath .. "register.lua")
 dofile(modpath .. "transform.lua")
 
-for modname in pairs(animal_mods) do
+for _, modname in ipairs(animal_mods) do
     local settings_enabled = settings:get_bool("therianthropy." .. modname, true)
     if core.get_modpath(modname) and settings_enabled then
         dofile(modpath .. "animals/" .. modname .. ".lua")

@@ -1,6 +1,8 @@
 local priv_name = "therianthropy"
 
 function therianthropy.register_animal(short_name, def)
+    if therianthropy.mob_data[short_name] then return end
+
     -- Required fields
     local model = def.model
     local texture = def.texture
