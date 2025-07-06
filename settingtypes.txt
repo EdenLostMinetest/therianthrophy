@@ -1,0 +1,8 @@
+therianthropy.mobs_animal (Add animals from mobs_animal mod) bool true
+therianthropy.mobs_water (Add animals from mobs_water modpack) bool true
+therianthropy.mob_horse (Add horse from mob_horse) bool true
+therianthropy.mobs_monster (Add animals from mobs_monster) bool true
+therianthropy.dmobs (Add animals from dmobs mod) bool true
+therianthropy.dmobs_dragon (Add dragons from dmobs mod) bool true
+therianthropy.sounds (Play animal noises when transformed) bool true
+therianthropy.problematic (Add problematic animals) bool false
