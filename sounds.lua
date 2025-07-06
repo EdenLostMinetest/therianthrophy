@@ -16,7 +16,7 @@ local function play_sound(player, sound_name)
 end
 
 -- Play animal attack noise when punching a player
-core.register_on_punchplayer(function(player, hitter, time_from_last_punch, _, _, _)
+core.register_on_punchplayer(function(_, hitter, time_from_last_punch)
     if not therianthropy.transformed(hitter:get_player_name()) then return end
 
     time_from_last_punch = time_from_last_punch or 0
