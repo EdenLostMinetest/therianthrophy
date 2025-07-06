@@ -6,8 +6,8 @@ local function register_animal_player_model(short_name, def)
     local model = init_prop.mesh
     local texture = def.texture_list[1][1]
     local box = init_prop.collisionbox
-    -- Todo: find a better eye_height calculation
-    local eye_height = (box[5] - box[2]) / init_prop.visual_size.y + box[2]
+    local visual_size = init_prop.visual_size or {x = 1, y = 1}
+    local eye_height = box[5]
     local hear_distance = (def.sounds and def.sounds.distance) or 10
     local sounds = def.sounds or {}
 
@@ -39,6 +39,7 @@ local function register_animal_player_model(short_name, def)
         animation_speed = anim_speed,
         textures = {texture},
         collisionbox = box,
+        visual_size = visual_size,
         eye_height = eye_height,
         animations = {
             stand = stand_anim,
@@ -47,6 +48,7 @@ local function register_animal_player_model(short_name, def)
             walk_mine = walk_mine_anim
         }
     })
+    core.chat_send_all(short_name .. ", " .. core.serialize(visual_size))
     therianthropy.mob_data[short_name] = {
         model = model,
         texture = texture,
